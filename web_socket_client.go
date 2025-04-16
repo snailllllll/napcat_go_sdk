@@ -1,0 +1,1 @@
+package napcat_go_sdk
