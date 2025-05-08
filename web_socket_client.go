@@ -11,18 +11,11 @@ type WebSocketClient struct {
 	Handler []HandlerMessage //消息处理器
 }
 
-type SendMessage interface {
-	/*
-		返回需要发送的报文体
-	*/
-	sendMessage() interface{}
-}
-
 func NewWebSocketClient(url string, port uint, token *string) (*WebSocketClient, error) {
 
 	connUrl := ""
 	if token == nil {
-		connUrl = fmt.Sprintf("ws://%s:%d?access_token=%s", url, port)
+		connUrl = fmt.Sprintf("ws://%s:%d", url, port)
 	} else {
 		connUrl = fmt.Sprintf("ws://%s:%d?access_token=%s", url, port, *token)
 	}
@@ -32,8 +25,8 @@ func NewWebSocketClient(url string, port uint, token *string) (*WebSocketClient,
 	return &WebSocketClient{conn: conn, Handler: make([]HandlerMessage, 0)}, err
 }
 
-func (client *WebSocketClient) SendMessage(message SendMessage) error {
-	err := client.conn.WriteJSON(message.sendMessage())
+func (client *WebSocketClient) SendMessage(message SendMsg) error {
+	err := client.conn.WriteJSON(message.SendWebSocketMsg())
 	return err
 }
 

@@ -216,7 +216,36 @@ type replyStatus struct {
 		"params": {}
 	}
 */
-type Message struct {
-	Action Action      `json:"action"`
-	Params interface{} `json:"params"`
+type Message[T any] struct {
+	/*
+	 需要发送的接口
+	*/
+	Action Action `json:"action"`
+	/*
+	 对应的参数
+	*/
+	Params T `json:"params"`
 }
+
+type UserId struct {
+	UserId string `json:"user_id"`
+}
+
+type Poke = Message[UserId]
+
+func (msg *Message[any]) SendWebSocketMsg() interface{} {
+	return msg
+}
+
+func (msg *Message[any]) SendHttpMsg() interface{} {
+	return msg.Params
+}
+
+type SendMsgContent struct {
+	UserId
+	Messages []Msg `json:"message"`
+}
+
+type PrivateMsg = Message[SendMsgContent]
+
+type GroupMsg = Message[SendMsgContent]
