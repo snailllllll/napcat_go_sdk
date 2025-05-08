@@ -161,22 +161,29 @@ type ReceiveMessage struct {
 type MsgType string
 
 const (
-	TEXT  MsgType = "text"
-	FACE  MsgType = "face"
-	IMAGE MsgType = "image"
-	REPLY MsgType = "reply"
-	AT    MsgType = "at"
+	TEXT   MsgType = "text"
+	FACE   MsgType = "face"
+	IMAGE  MsgType = "image"
+	REPLY  MsgType = "reply"
+	AT     MsgType = "at"
+	RECORD MsgType = "record"
+	VIDEO  MsgType = "video"
+	DICE   MsgType = "dice"
+	RPS    MsgType = "rps"
+	NODE   MsgType = "node"
 )
 
 type Action string
 
 const (
-	// SEND_PRIVATE_MSG 发送私聊
+	// 发送私聊
 	SEND_PRIVATE_MSG Action = "send_private_msg"
-	// FRIEND_POKE 发送戳一戳
+	// 发送戳一戳
 	FRIEND_POKE Action = "friend_poke"
-	// SEND_GROUP_MSG 发送群聊信息
+	// 发送群聊信息
 	SEND_GROUP_MSG Action = "send_group_msg"
+	// 群聊戳一戳
+	GROUP_POKE Action = "group_poke"
 )
 
 type MessageFrom string
@@ -197,6 +204,8 @@ type MsgData struct {
 	Text *string `json:"text"`
 	Id   *int    `json:"id"`
 	File *string `json:"file"`
+	Data *string `json:"data"`
+	Name *string `json:"name"`
 }
 
 type replyStatus struct {
@@ -227,12 +236,6 @@ type Message[T any] struct {
 	Params T `json:"params"`
 }
 
-type UserId struct {
-	UserId string `json:"user_id"`
-}
-
-type Poke = Message[UserId]
-
 func (msg *Message[any]) SendWebSocketMsg() interface{} {
 	return msg
 }
@@ -241,11 +244,112 @@ func (msg *Message[any]) SendHttpMsg() interface{} {
 	return msg.Params
 }
 
+type UserGroupId struct {
+	UserId  *string `json:"user_id"`
+	GroupId *string `json:"group_id"`
+}
+
+// Poke
+/*
+群聊poke
+{
+  "group_id": 0,
+  "user_id": 0
+}
+
+私聊poke
+{
+  "user_id": 0
+}
+*/
+type Poke = Message[UserGroupId]
+
 type SendMsgContent struct {
-	UserId
+	UserGroupId
 	Messages []Msg `json:"message"`
 }
 
+// PrivateMsg
+/*
+私聊文本
+{
+  "user_id": "",
+  "message": [
+    {
+      "type": "text",
+      "data": {
+        "text": ""
+      }
+    },
+	{
+    	"type": "image",
+        "data": {
+            	// 本地路径
+            	"file": "file://D:/a.jpg"
+            	// 网络路径
+            	// "file": "http://i0.hdslb.com/bfs/archive/c8fd97a40bf79f03e7b76cbc87236f612caef7b2.png"
+            	//base64编码
+            	// "file": "base64://xxxxxxxx"
+        	}
+        },
+		{
+            "type": "face",
+            "data": {
+                "id": 37
+                //参考 https://bot.q.qq.com/wiki/develop/api-v2/openapi/emoji/model.html#EmojiType
+            }
+        },
+		{
+            "type": "record",
+            "data": {
+                // 本地路径
+                "file": "file://D:/a.mp3"
+
+                // 网络路径
+                // "file": "http://xxx.mp3"
+            }
+        }，
+		{
+            "type": "video",
+            "data": {
+                // 本地路径
+                "file": "file://D:/a.mp4"
+
+                // 网络路径
+                // "file": "http://xxx.mp4"
+            }
+        }，
+		//回复的消息
+		{
+            //第一个必须为reply
+            "type": "reply",
+            "data": {
+                "id": 1263753202
+            }
+        },
+        {
+            "type": "text",
+            "data": {
+                "text": "回复你了"
+            }
+        },
+		{
+            "type": "file",
+            "data": {
+                // 本地路径
+                "file": "file://D:/a.jpg",
+
+                // 网络路径
+                // "file": "http://i0.hdslb.com/bfs/archive/c8fd97a40bf79f03e7b76cbc87236f612caef7b2.png",
+
+                // "file": "base64或DataUrl编码",
+
+                "name": "a.jpg"
+            }
+        }
+  ]
+}
+*/
 type PrivateMsg = Message[SendMsgContent]
 
 type GroupMsg = Message[SendMsgContent]
