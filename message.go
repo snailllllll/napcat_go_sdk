@@ -184,6 +184,10 @@ const (
 	SEND_GROUP_MSG Action = "send_group_msg"
 	// 群聊戳一戳
 	GROUP_POKE Action = "group_poke"
+	//转发单条消息到个人 没什么用 直接获取消息走私聊信息即可
+	FORWARD_FRIEND_SINGLE_MSG
+	//发送合并转发消息
+	SEND_FORWARD_MSG = "send_private_forward_msg"
 )
 
 type MessageFrom string
@@ -201,11 +205,14 @@ type Msg struct {
 }
 
 type MsgData struct {
-	Text *string `json:"text"`
-	Id   *int    `json:"id"`
-	File *string `json:"file"`
-	Data *string `json:"data"`
-	Name *string `json:"name"`
+	Text     *string `json:"text"`
+	Id       *int    `json:"id"`
+	File     *string `json:"file"`
+	Data     *string `json:"data"`
+	Name     *string `json:"name"`
+	UserId   *string `json:"user_id"`
+	NickName *string `json:"nickname"`
+	Content  []Msg   `json:"content"`
 }
 
 type replyStatus struct {
@@ -353,3 +360,31 @@ type SendMsgContent struct {
 type PrivateMsg = Message[SendMsgContent]
 
 type GroupMsg = Message[SendMsgContent]
+
+// ForwardFriendSingleMsgContent
+/**
+消息转发到私聊
+
+{
+  "user_id": "textValue",
+  "message_id": "textValue"
+}
+*/
+type ForwardFriendSingleMsgContent struct {
+	UserId    string `json:"user_id"`
+	MessageId string `json:"message_id"`
+}
+type ForwardFriendSingleMsg = Message[ForwardFriendSingleMsgContent]
+
+type ForwardMsgContent struct {
+	UserGroupId
+	Messages []Msg `json:"messages"`
+	News     []struct {
+		Text *string `json:"text"`
+	} `json:"news"`
+	Prompt  string `json:"prompt"`
+	Summary string `json:"summary"`
+	Source  string `json:"source"`
+}
+
+type ForwardMsg = Message[ForwardMsgContent]
