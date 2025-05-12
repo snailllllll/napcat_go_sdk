@@ -185,9 +185,13 @@ const (
 	// 群聊戳一戳
 	GROUP_POKE Action = "group_poke"
 	//转发单条消息到个人 没什么用 直接获取消息走私聊信息即可
-	FORWARD_FRIEND_SINGLE_MSG
+	FORWARD_FRIEND_SINGLE_MSG Action = "forward_friend_single_msg"
 	//发送合并转发消息
-	SEND_FORWARD_MSG = "send_private_forward_msg"
+	SEND_FORWARD_MSG Action = "send_private_forward_msg"
+	//撤回消息
+	DELETE_MSG Action = "delete_msg"
+	// 获取图片
+	GET_IMAGE Action = "get_image"
 )
 
 type MessageFrom string
@@ -245,10 +249,6 @@ type Message[T any] struct {
 
 func (msg *Message[any]) SendWebSocketMsg() interface{} {
 	return msg
-}
-
-func (msg *Message[any]) SendHttpMsg() interface{} {
-	return msg.Params
 }
 
 type UserGroupId struct {
@@ -388,3 +388,16 @@ type ForwardMsgContent struct {
 }
 
 type ForwardMsg = Message[ForwardMsgContent]
+
+type MessageId struct {
+	// 需要撤回的messageId
+	MessageId string `json:"message_id"`
+}
+
+type DeleteMsg = Message[MessageId]
+
+type FileId struct {
+	FileId string `json:"file_id"`
+}
+
+type GetImage = Message[FileId]
