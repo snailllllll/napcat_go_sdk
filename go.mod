@@ -1,4 +1,4 @@
-module github.com/deporation/napcat_go_sdk
+module github.com/snailllllll/napcat_go_sdk
 
 go 1.22
 
