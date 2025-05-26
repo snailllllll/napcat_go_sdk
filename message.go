@@ -1,5 +1,7 @@
 package napcat_go_sdk
 
+import "github.com/google/uuid"
+
 type ReceiveMessage struct {
 	Time          int         `json:"time"`
 	SelfId        int         `json:"self_id"`
@@ -229,6 +231,14 @@ type replyStatus struct {
 	Wording string `json:"wording"`
 	Echo    string `json:"echo"`
 }
+type apiResponse struct {
+	Status  string                 `json:"status"`
+	Retcode int                    `json:"retcode"`
+	Data    map[string]interface{} `json:"data"`
+	Message string                 `json:"message"`
+	Wording string                 `json:"wording"`
+	Echo    string                 `json:"echo"`
+}
 
 /*
 	{
@@ -245,10 +255,16 @@ type Message[T any] struct {
 	 对应的参数
 	*/
 	Params T `json:"params"`
+
+	Echo string `json:"echo"`
 }
 
 func (msg *Message[any]) SendWebSocketMsg() interface{} {
+	msg.GenerateEchoID()
 	return msg
+}
+func (msg *Message[T]) GenerateEchoID() {
+	msg.Echo = uuid.NewString()
 }
 
 type UserGroupId struct {
